@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 def create_app():
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL") + "?sslmode=require"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///jobboard.db")
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "fallback_secret_key")
     
     # Set up logging
@@ -46,11 +46,12 @@ def create_app():
             app.logger.error(f"Error creating database tables: {str(e)}")
             raise
         
-        add_sample_data()
+        add_sample_data(app)
+        create_predefined_users(app)
 
     return app
 
-def add_sample_data():
+def add_sample_data(app):
     from models import Company, Job
 
     # Check if data already exists
@@ -69,10 +70,26 @@ def add_sample_data():
             db.session.add_all([job1, job2, job3])
             db.session.commit()
             
-            current_app.logger.info("Sample data added successfully")
+            app.logger.info("Sample data added successfully")
         except SQLAlchemyError as e:
             db.session.rollback()
-            current_app.logger.error(f"Error adding sample data: {str(e)}")
+            app.logger.error(f"Error adding sample data: {str(e)}")
+
+def create_predefined_users(app):
+    from models import User
+    from auth import PREDEFINED_USERS
+
+    try:
+        for user_data in PREDEFINED_USERS:
+            if not User.query.filter_by(email=user_data['email']).first():
+                user = User(username=user_data['username'], email=user_data['email'])
+                user.set_password(user_data['password'])
+                db.session.add(user)
+        db.session.commit()
+        app.logger.info("Predefined users created successfully")
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        app.logger.error(f"Error creating predefined users: {str(e)}")
 
 if __name__ == "__main__":
     app = create_app()

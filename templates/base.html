@@ -11,34 +11,15 @@
         <nav class="container mx-auto p-4">
             <div class="flex justify-between items-center">
                 <a href="/" class="text-2xl font-bold">Job Board</a>
-                <div class="flex items-center">
-                    <form action="{{ url_for('main.search') }}" method="GET" class="flex mr-4">
-                        <input type="text" name="q" placeholder="Search jobs..." class="px-4 py-2 rounded-l-lg text-gray-800">
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-400">Search</button>
-                    </form>
-                    {% if current_user.is_authenticated %}
-                        <span class="mr-4">Welcome, {{ current_user.username }} ({{ current_user.role }})</span>
-                        <a href="{{ url_for('auth.logout') }}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400">Logout</a>
-                    {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-400 mr-2">Login</a>
-                        <a href="{{ url_for('auth.register', role='employer') }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-400 mr-2">Register as Employer</a>
-                        <a href="{{ url_for('auth.register', role='job_seeker') }}" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-400">Register as Job Seeker</a>
-                    {% endif %}
-                </div>
+                <form action="{{ url_for('main.search') }}" method="GET" class="flex">
+                    <input type="text" name="q" placeholder="Search jobs..." class="px-4 py-2 rounded-l-lg text-gray-800">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-400">Search</button>
+                </form>
             </div>
         </nav>
     </header>
     
     <main class="container mx-auto mt-8 flex-grow">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="mb-4 p-4 rounded-md {% if category == 'error' %}bg-red-100 text-red-700{% elif category == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
         {% block content %}{% endblock %}
     </main>
 

@@ -1,6 +1,9 @@
-from flask import Blueprint, render_template, request, jsonify
-from models import Company, Job
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app
+from flask_login import login_required, current_user
+from models import Company, Job, JobApplication
 from extensions import db
+from werkzeug.utils import secure_filename
+import os
 
 main = Blueprint('main', __name__)
 
@@ -31,3 +34,47 @@ def api_search():
         'company_id': job.company_id,
         'description': job.description
     } for job in jobs])
+
+@main.route('/job/<int:job_id>')
+def job_details(job_id):
+    job = Job.query.get_or_404(job_id)
+    return render_template('job_details.html', job=job)
+
+@main.route('/job/<int:job_id>/apply', methods=['GET', 'POST'])
+@login_required
+def apply_for_job(job_id):
+    job = Job.query.get_or_404(job_id)
+    if request.method == 'POST':
+        cover_letter = request.form.get('cover_letter')
+        resume = request.files.get('resume')
+        
+        if resume and allowed_file(resume.filename):
+            filename = secure_filename(resume.filename)
+            resume_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            resume.save(resume_path)
+        else:
+            flash('Please upload a valid PDF resume.', 'error')
+            return redirect(url_for('main.apply_for_job', job_id=job_id))
+
+        application = JobApplication(
+            job_id=job.id,
+            user_id=current_user.id,
+            cover_letter=cover_letter,
+            resume=resume_path
+        )
+        db.session.add(application)
+        db.session.commit()
+
+        flash('Your application has been submitted successfully!', 'success')
+        return redirect(url_for('main.job_details', job_id=job_id))
+
+    return render_template('apply_for_job.html', job=job)
+
+@main.route('/my_applications')
+@login_required
+def my_applications():
+    applications = JobApplication.query.filter_by(user_id=current_user.id).all()
+    return render_template('my_applications.html', applications=applications)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'pdf'

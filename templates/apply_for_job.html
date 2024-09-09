@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-4">Apply for: {{ job.title }}</h1>
+    <h2 class="text-xl text-gray-600 mb-4">{{ job.company.name }}</h2>
+    
+    <form method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
+        <div class="mb-4">
+            <label for="cover_letter" class="block text-gray-700 text-sm font-bold mb-2">Cover Letter</label>
+            <textarea id="cover_letter" name="cover_letter" rows="6" required
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+        </div>
+        <div class="mb-4">
+            <label for="resume" class="block text-gray-700 text-sm font-bold mb-2">Resume (PDF only)</label>
+            <input type="file" id="resume" name="resume" accept=".pdf" required
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div class="flex items-center justify-between">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Submit Application
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

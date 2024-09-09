@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, current_app
+from flask import Blueprint, render_template, request, jsonify
 from models import Company, Job
 from extensions import db
-from flask_login import login_required, current_user
 
 main = Blueprint('main', __name__)
 
@@ -32,8 +31,3 @@ def api_search():
         'company_id': job.company_id,
         'description': job.description
     } for job in jobs])
-
-@main.route('/job/<int:job_id>')
-def job_details(job_id):
-    job = Job.query.get_or_404(job_id)
-    return render_template('job_details.html', job=job)

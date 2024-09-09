@@ -32,6 +32,32 @@ def login():
     
     return render_template('login.html')
 
+@auth.route('/register/<role>', methods=['GET', 'POST'])
+def register(role):
+    if role not in ['employer', 'job_seeker']:
+        flash('Invalid registration type.', 'error')
+        return redirect(url_for('main.index'))
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash('Email address already exists', 'error')
+            return redirect(url_for('auth.register', role=role))
+
+        new_user = User(username=username, email=email, role=role)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Registration successful. Please log in.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template(f'register_{role}.html')
+
 @auth.route('/logout')
 @login_required
 def logout():

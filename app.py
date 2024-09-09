@@ -9,7 +9,6 @@ def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///jobboard.db")
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "fallback_secret_key")
-    app.config['UPLOAD_FOLDER'] = 'uploads'
     
     # Set up logging
     logging.basicConfig(level=logging.INFO)
@@ -83,7 +82,7 @@ def create_predefined_users(app):
     try:
         for user_data in PREDEFINED_USERS:
             if not User.query.filter_by(email=user_data['email']).first():
-                user = User(username=user_data['username'], email=user_data['email'], role=user_data['role'])
+                user = User(username=user_data['username'], email=user_data['email'])
                 user.set_password(user_data['password'])
                 db.session.add(user)
         db.session.commit()

@@ -18,8 +18,20 @@
     {% else %}
     <div class="mt-8">
         <h3 class="text-xl font-bold mb-4">Your Applications</h3>
-        <!-- Add job applications here when implemented -->
-        <p>No applications yet.</p>
+        {% if current_user.applications %}
+            <ul class="space-y-4">
+            {% for application in current_user.applications %}
+                <li class="bg-gray-100 p-4 rounded">
+                    <h4 class="font-semibold">{{ application.job.title }} at {{ application.job.company.name }}</h4>
+                    <p class="text-sm text-gray-600">Applied on: {{ application.created_at.strftime('%Y-%m-%d') }}</p>
+                    <p class="text-sm text-gray-600">Status: {{ application.status }}</p>
+                    <a href="{{ url_for('main.view_application', application_id=application.id) }}" class="text-blue-500 hover:underline">View Application</a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No applications submitted yet.</p>
+        {% endif %}
     </div>
     {% endif %}
 </div>

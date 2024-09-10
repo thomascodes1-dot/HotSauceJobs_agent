@@ -33,5 +33,7 @@ class JobApplication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     job_id = db.Column(db.Integer, db.ForeignKey('job.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    status = db.Column(db.String(20), default='pending')  # e.g., 'pending', 'accepted', 'rejected'
+    status = db.Column(db.String(20), default='pending')
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+    cover_letter = db.Column(db.Text, nullable=False)
+    resume_filename = db.Column(db.String(255), nullable=False)

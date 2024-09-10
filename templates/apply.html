@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6">Apply for {{ job.title }} at {{ job.company.name }}</h2>
+    <form method="POST" action="{{ url_for('main.apply_for_job', job_id=job.id) }}" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="mb-4">
+            <h3 class="text-xl font-semibold mb-2">Job Description</h3>
+            <p class="text-gray-600 mb-4">{{ job.description }}</p>
+        </div>
+        <div class="mb-4">
+            <h3 class="text-xl font-semibold mb-2">Requirements</h3>
+            <p class="text-gray-600 mb-4">{{ job.requirements }}</p>
+        </div>
+        <div class="mb-4">
+            <label for="cover_letter" class="block text-gray-700 font-bold mb-2">Cover Letter</label>
+            {{ form.cover_letter(class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500", rows=5) }}
+        </div>
+        <div class="mb-4">
+            <label for="resume" class="block text-gray-700 font-bold mb-2">Resume (PDF only)</label>
+            {{ form.resume(class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500") }}
+        </div>
+        <div class="mb-6">
+            <p class="text-gray-700">By submitting this application, you confirm that you meet the job requirements and wish to apply for this position.</p>
+        </div>
+        <button type="submit" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:shadow-outline">
+            Submit Application
+        </button>
+    </form>
+</div>
+{% endblock %}

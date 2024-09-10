@@ -14,6 +14,12 @@ def create_app():
         print("Database URL is not set")
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "your-secret-key")
+    
+    # Configure upload folder
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+    
     db.init_app(app)
 
     login_manager = LoginManager()
@@ -70,8 +76,8 @@ def add_sample_data():
 
         # Add sample job applications
         logging.info("Adding sample job applications")
-        application1 = JobApplication(job_id=job1.id, user_id=user1.id, status="pending", created_at=datetime.utcnow())
-        application2 = JobApplication(job_id=job2.id, user_id=user3.id, status="accepted", created_at=datetime.utcnow())
+        application1 = JobApplication(job_id=job1.id, user_id=user1.id, status="pending", created_at=datetime.utcnow(), cover_letter="Sample cover letter", resume_filename="sample_resume.pdf")
+        application2 = JobApplication(job_id=job2.id, user_id=user3.id, status="accepted", created_at=datetime.utcnow(), cover_letter="Another sample cover letter", resume_filename="another_sample_resume.pdf")
         db.session.add_all([application1, application2])
         db.session.commit()
 

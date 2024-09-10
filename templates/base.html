@@ -5,92 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Board</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-        }
-        .bg-gradient {
-            background: linear-gradient(90deg, #3490dc, #6574cd);
-        }
-        .job-listing {
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-        }
-        .job-listing:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-left-color: #3490dc;
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-in-out forwards;
-            opacity: 0;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .mobile-menu-enter {
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-        }
-        .mobile-menu-enter-active {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .mobile-menu-exit {
-            transition: opacity 0.3s ease-in, transform 0.3s ease-in;
-        }
-        .mobile-menu-exit-active {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-    </style>
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen">
-    <header class="bg-gradient text-white shadow-md">
+    <header class="bg-blue-600 text-white">
         <nav class="container mx-auto p-4">
             <div class="flex justify-between items-center">
-                <a href="{{ url_for('main.index') }}" class="text-3xl font-bold">Job Board</a>
-                <div class="hidden md:flex space-x-4">
-                    <a href="{{ url_for('main.search') }}" class="hover:text-blue-200 transition duration-300">Search Jobs</a>
+                <a href="/" class="text-2xl font-bold">Job Board</a>
+                <div class="flex items-center">
+                    <form action="{{ url_for('main.search') }}" method="GET" class="flex mr-4">
+                        <input type="text" name="q" placeholder="Search jobs..." class="px-4 py-2 rounded-l-lg text-gray-800">
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-400">Search</button>
+                    </form>
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('main.profile') }}" class="hover:text-blue-200 transition duration-300">Profile</a>
+                        <a href="{{ url_for('main.profile') }}" class="text-white mr-4">Profile</a>
                         {% if current_user.is_admin %}
-                        <a href="{{ url_for('main.admin_panel') }}" class="hover:text-blue-200 transition duration-300">Admin Panel</a>
+                        <a href="{{ url_for('main.admin_panel') }}" class="text-white mr-4">Admin Panel</a>
                         {% endif %}
-                        <a href="{{ url_for('main.logout') }}" class="hover:text-blue-200 transition duration-300">Logout</a>
+                        <a href="{{ url_for('main.logout') }}" class="text-white">Logout</a>
                     {% else %}
-                        <a href="{{ url_for('main.login') }}" class="hover:text-blue-200 transition duration-300">Login</a>
-                        <a href="{{ url_for('main.register') }}" class="hover:text-blue-200 transition duration-300">Register</a>
+                        <a href="{{ url_for('main.login') }}" class="text-white mr-4">Login</a>
+                        <a href="{{ url_for('main.register') }}" class="text-white">Register</a>
                     {% endif %}
                 </div>
-                <button id="menu-toggle" class="md:hidden text-white focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                    </svg>
-                </button>
             </div>
         </nav>
-        <div id="mobile-menu" class="md:hidden hidden bg-blue-600 p-4">
-            <a href="{{ url_for('main.search') }}" class="block py-2 hover:text-blue-200 transition duration-300">Search Jobs</a>
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.profile') }}" class="block py-2 hover:text-blue-200 transition duration-300">Profile</a>
-                {% if current_user.is_admin %}
-                <a href="{{ url_for('main.admin_panel') }}" class="block py-2 hover:text-blue-200 transition duration-300">Admin Panel</a>
-                {% endif %}
-                <a href="{{ url_for('main.logout') }}" class="block py-2 hover:text-blue-200 transition duration-300">Logout</a>
-            {% else %}
-                <a href="{{ url_for('main.login') }}" class="block py-2 hover:text-blue-200 transition duration-300">Login</a>
-                <a href="{{ url_for('main.register') }}" class="block py-2 hover:text-blue-200 transition duration-300">Register</a>
-            {% endif %}
-        </div>
     </header>
     
-    <main class="container mx-auto mt-8 px-4 flex-grow">
+    <main class="container mx-auto mt-8 flex-grow">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded relative mb-4 animate-fade-in" role="alert">
+                    <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded relative mb-4" role="alert">
                         <span class="block sm:inline">{{ message }}</span>
                     </div>
                 {% endfor %}
@@ -99,27 +44,11 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-gray-800 text-white mt-8">
-        <div class="container mx-auto py-6 px-4">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
-                    <h3 class="text-xl font-bold">Job Board</h3>
-                    <p class="text-sm text-gray-400">&copy; 2024 All rights reserved.</p>
-                </div>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">About</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
-                </div>
-            </div>
+    <footer class="bg-gray-200 mt-8">
+        <div class="container mx-auto p-4 text-center text-gray-600">
+            &copy; 2024 Job Board. All rights reserved.
         </div>
     </footer>
-
-    <button id="scroll-to-top" class="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded-full shadow-md hover:bg-blue-600 transition duration-300 hidden">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
-        </svg>
-    </button>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

@@ -8,11 +8,11 @@ from datetime import datetime
 def create_app():
     app = Flask(__name__)
     database_url = os.environ.get("DATABASE_URL")
-    if database_url and database_url.startswith("postgres://"):
-        database_url = database_url.replace("postgres://", "postgresql://", 1)
-    
+    if database_url:
+        print("Database URL is set and starts with:", database_url[:10] + "...")
+    else:
+        print("Database URL is not set")
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "your-secret-key")
     
     # Configure upload folder
@@ -36,11 +36,11 @@ def create_app():
         app.register_blueprint(main)
         
         import models
-        db.create_all()  # Create tables if they don't exist
+        db.drop_all()  # Drop all existing tables
+        db.create_all()  # Recreate all tables
         
-        if not models.Company.query.first():  # Only add sample data if the database is empty
-            success = add_sample_data()
-            logging.info(f"Sample data addition {'succeeded' if success else 'failed'}")
+        success = add_sample_data()
+        logging.info(f"Sample data addition {'succeeded' if success else 'failed'}")
 
     return app
 
@@ -82,6 +82,13 @@ def add_sample_data():
         application2 = JobApplication(job_id=job2.id, user_id=user3.id, status="accepted", created_at=datetime.utcnow(), cover_letter="Another sample cover letter", resume_filename="another_sample_resume.pdf")
         db.session.add_all([application1, application2])
         db.session.commit()
+
+        # Verify data was added
+        companies = Company.query.all()
+        jobs = Job.query.all()
+        users = User.query.all()
+        applications = JobApplication.query.all()
+        logging.info(f"Verification: {len(companies)} companies, {len(jobs)} jobs, {len(users)} users, {len(applications)} applications")
 
         print("Sample data added successfully")
         return True

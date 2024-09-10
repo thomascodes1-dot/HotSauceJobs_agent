@@ -71,7 +71,9 @@ def add_sample_data():
         user2.set_password("password2")
         user3 = User(username="jobseeker2", is_employer=False)
         user3.set_password("password3")
-        db.session.add_all([user1, user2, user3])
+        admin_user = User(username="admin", is_employer=False, is_admin=True)
+        admin_user.set_password("adminpassword")
+        db.session.add_all([user1, user2, user3, admin_user])
         db.session.commit()
 
         # Add sample job applications

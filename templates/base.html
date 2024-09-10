@@ -18,6 +18,9 @@
                     </form>
                     {% if current_user.is_authenticated %}
                         <a href="{{ url_for('main.profile') }}" class="text-white mr-4">Profile</a>
+                        {% if current_user.is_admin %}
+                        <a href="{{ url_for('main.admin_panel') }}" class="text-white mr-4">Admin Panel</a>
+                        {% endif %}
                         <a href="{{ url_for('main.logout') }}" class="text-white">Logout</a>
                     {% else %}
                         <a href="{{ url_for('main.login') }}" class="text-white mr-4">Login</a>

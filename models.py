@@ -21,6 +21,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     is_employer = db.Column(db.Boolean, default=False)
+    is_admin = db.Column(db.Boolean, default=False)
     applications = db.relationship('JobApplication', backref='applicant', lazy=True)
 
     def set_password(self, password):

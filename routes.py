@@ -5,7 +5,7 @@ from extensions import db
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
-from wtforms import TextAreaField, FileField
+from wtforms import TextAreaField, FileField, StringField
 from wtforms.validators import DataRequired
 import os
 import logging
@@ -15,6 +15,15 @@ main = Blueprint('main', __name__)
 class JobApplicationForm(FlaskForm):
     cover_letter = TextAreaField('Cover Letter', validators=[DataRequired()])
     resume = FileField('Resume', validators=[DataRequired()])
+
+class CompanyForm(FlaskForm):
+    name = StringField('Company Name', validators=[DataRequired()])
+    description = TextAreaField('Company Description', validators=[DataRequired()])
+
+class JobForm(FlaskForm):
+    title = StringField('Job Title', validators=[DataRequired()])
+    description = TextAreaField('Job Description', validators=[DataRequired()])
+    requirements = TextAreaField('Job Requirements', validators=[DataRequired()])
 
 @main.route('/')
 def index():
@@ -134,3 +143,78 @@ def view_application(application_id):
     if application.user_id != current_user.id:
         abort(403)  # Forbidden access
     return render_template('view_application.html', application=application)
+
+# Admin panel routes
+@main.route('/admin')
+@login_required
+def admin_panel():
+    if not current_user.is_admin:
+        abort(403)  # Forbidden access
+    companies = Company.query.all()
+    jobs = Job.query.all()
+    return render_template('admin/panel.html', companies=companies, jobs=jobs)
+
+@main.route('/admin/company/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_company():
+    if not current_user.is_admin:
+        abort(403)  # Forbidden access
+    form = CompanyForm()
+    if form.validate_on_submit():
+        new_company = Company(name=form.name.data, description=form.description.data)
+        db.session.add(new_company)
+        db.session.commit()
+        flash('Company added successfully.', 'success')
+        return redirect(url_for('main.admin_panel'))
+    return render_template('admin/company_form.html', form=form, title='Add Company')
+
+@main.route('/admin/company/edit/<int:company_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_company(company_id):
+    if not current_user.is_admin:
+        abort(403)  # Forbidden access
+    company = Company.query.get_or_404(company_id)
+    form = CompanyForm(obj=company)
+    if form.validate_on_submit():
+        company.name = form.name.data
+        company.description = form.description.data
+        db.session.commit()
+        flash('Company updated successfully.', 'success')
+        return redirect(url_for('main.admin_panel'))
+    return render_template('admin/company_form.html', form=form, title='Edit Company')
+
+@main.route('/admin/job/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_job():
+    if not current_user.is_admin:
+        abort(403)  # Forbidden access
+    form = JobForm()
+    form.company_id = request.args.get('company_id')
+    if form.validate_on_submit():
+        new_job = Job(
+            title=form.title.data,
+            description=form.description.data,
+            requirements=form.requirements.data,
+            company_id=form.company_id
+        )
+        db.session.add(new_job)
+        db.session.commit()
+        flash('Job added successfully.', 'success')
+        return redirect(url_for('main.admin_panel'))
+    return render_template('admin/job_form.html', form=form, title='Add Job')
+
+@main.route('/admin/job/edit/<int:job_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_job(job_id):
+    if not current_user.is_admin:
+        abort(403)  # Forbidden access
+    job = Job.query.get_or_404(job_id)
+    form = JobForm(obj=job)
+    if form.validate_on_submit():
+        job.title = form.title.data
+        job.description = form.description.data
+        job.requirements = form.requirements.data
+        db.session.commit()
+        flash('Job updated successfully.', 'success')
+        return redirect(url_for('main.admin_panel'))
+    return render_template('admin/job_form.html', form=form, title='Edit Job')

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+    <h1 class="text-3xl font-bold mb-6">Admin Panel</h1>
+    
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Companies</h2>
+        <a href="{{ url_for('main.admin_add_company') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4 inline-block">Add New Company</a>
+        <table class="w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border border-gray-300 px-4 py-2">Name</th>
+                    <th class="border border-gray-300 px-4 py-2">Description</th>
+                    <th class="border border-gray-300 px-4 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for company in companies %}
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">{{ company.name }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ company.description[:50] }}...</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        <a href="{{ url_for('main.admin_edit_company', company_id=company.id) }}" class="text-blue-500 hover:underline">Edit</a>
+                        <a href="{{ url_for('main.admin_add_job') }}?company_id={{ company.id }}" class="text-green-500 hover:underline ml-2">Add Job</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div>
+        <h2 class="text-2xl font-semibold mb-4">Jobs</h2>
+        <table class="w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border border-gray-300 px-4 py-2">Title</th>
+                    <th class="border border-gray-300 px-4 py-2">Company</th>
+                    <th class="border border-gray-300 px-4 py-2">Description</th>
+                    <th class="border border-gray-300 px-4 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">{{ job.title }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ job.company.name }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ job.description[:50] }}...</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        <a href="{{ url_for('main.admin_edit_job', job_id=job.id) }}" class="text-blue-500 hover:underline">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,15 +1,90 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6">Search Results for "{{ query }}"</h1>
-<div class="space-y-6" id="search-results">
-    {% for job in jobs %}
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold mb-2">{{ job.title }}</h2>
-        <h3 class="text-lg text-gray-600 mb-2">{{ job.company.name }}</h3>
-        <p class="text-gray-600 mb-4">{{ job.description }}</p>
-        <a href="{{ url_for('main.company', company_id=job.company.id) }}" class="text-blue-500 hover:underline">View Company</a>
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Job Search Results</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <form action="{{ url_for('main.search') }}" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+                <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Search Query</label>
+                <input type="text" name="q" id="q" value="{{ query }}" placeholder="Job title or keywords" class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-primary-color">
+            </div>
+            <div>
+                <label for="job_type" class="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
+                <select name="job_type" id="job_type" class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-primary-color">
+                    <option value="">All Types</option>
+                    <option value="full-time" {% if job_type == 'full-time' %}selected{% endif %}>Full Time</option>
+                    <option value="part-time" {% if job_type == 'part-time' %}selected{% endif %}>Part Time</option>
+                    <option value="contract" {% if job_type == 'contract' %}selected{% endif %}>Contract</option>
+                </select>
+            </div>
+            <div>
+                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <input type="text" name="location" id="location" value="{{ location }}" placeholder="City or remote" class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-primary-color">
+            </div>
+            <div>
+                <label for="salary_min" class="block text-sm font-medium text-gray-700 mb-1">Minimum Salary</label>
+                <input type="number" name="salary_min" id="salary_min" value="{{ salary_min }}" placeholder="Min salary" class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-primary-color">
+            </div>
+            <div>
+                <label for="salary_max" class="block text-sm font-medium text-gray-700 mb-1">Maximum Salary</label>
+                <input type="number" name="salary_max" id="salary_max" value="{{ salary_max }}" placeholder="Max salary" class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-primary-color">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="btn-primary w-full"><i class="fas fa-search mr-2"></i>Search</button>
+            </div>
+        </form>
     </div>
-    {% endfor %}
+
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4 text-primary-color">Search Results</h2>
+        <div class="space-y-6" id="search-results">
+            {% for job in jobs.items %}
+            <div class="border-b border-gray-200 pb-6 last:border-b-0 hover:bg-gray-50 transition duration-300 p-4 rounded-lg">
+                <h3 class="text-xl font-semibold mb-2 text-primary-color">{{ job.title }}</h3>
+                <p class="text-gray-600 mb-2"><i class="fas fa-building mr-2"></i>{{ job.company.name }}</p>
+                <p class="text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>{{ job.location }}</p>
+                <p class="text-gray-500 mb-2"><i class="fas fa-clock mr-2"></i>{{ job.job_type }}</p>
+                {% if job.salary_min and job.salary_max %}
+                <p class="text-gray-500 mb-2"><i class="fas fa-dollar-sign mr-2"></i>{{ job.salary_min }} - {{ job.salary_max }}</p>
+                {% endif %}
+                <p class="text-gray-600 mb-4">{{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}</p>
+                <div class="flex justify-between items-center">
+                    <a href="{{ url_for('main.company', company_id=job.company.id) }}" class="text-primary-color hover:underline transition duration-300" data-tooltip="View company details">
+                        <i class="fas fa-info-circle mr-2"></i>Company Details
+                    </a>
+                    <a href="{{ url_for('main.apply_for_job', job_id=job.id) }}" class="btn-secondary" data-tooltip="Apply for this job">
+                        <i class="fas fa-paper-plane mr-2"></i>Apply Now
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-gray-600">No jobs found. Try adjusting your search criteria.</p>
+            {% endfor %}
+        </div>
+
+        {% if jobs.pages > 1 %}
+        <div class="mt-8 flex justify-center">
+            <nav class="inline-flex rounded-md shadow">
+                {% for page_num in jobs.iter_pages(left_edge=2, left_current=2, right_current=2, right_edge=2) %}
+                    {% if page_num %}
+                        {% if jobs.page == page_num %}
+                            <a href="{{ url_for('main.search', q=query, job_type=job_type, location=location, salary_min=salary_min, salary_max=salary_max, page=page_num) }}" class="px-4 py-2 text-sm font-medium text-white bg-primary-color border border-primary-color">
+                                {{ page_num }}
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('main.search', q=query, job_type=job_type, location=location, salary_min=salary_min, salary_max=salary_max, page=page_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">
+                                {{ page_num }}
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300">...</span>
+                    {% endif %}
+                {% endfor %}
+            </nav>
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

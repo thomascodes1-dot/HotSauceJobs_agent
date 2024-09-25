@@ -40,7 +40,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flask db migrate -m 'Add employer profile fields to User model' && flask db upgrade"
+args = "flask db migrate -m 'Add profile picture and description to User model' && flask db upgrade"
 
 [deployment]
 deploymentTarget = "cloudrun"

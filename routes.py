@@ -148,7 +148,7 @@ def employer_view_applications(job_id):
     if job.company_id != current_user.id:
         abort(403)  # Forbidden access
     
-    applications = JobApplication.query.filter_by(job_id=job_id).all()
+    applications = JobApplication.query.filter_by(job_id=job_id).order_by(JobApplication.created_at.desc()).all()
     return render_template('employer_applications.html', job=job, applications=applications)
 
 @main.route('/employer/update_application/<int:application_id>', methods=['POST'])
@@ -159,7 +159,6 @@ def update_application_status(application_id):
     
     application = JobApplication.query.get_or_404(application_id)
     
-    # Check if the application's job belongs to the current employer
     if application.job.company_id != current_user.id:
         abort(403)  # Forbidden access
     
@@ -268,3 +267,25 @@ def admin_edit_job(job_id):
         flash('Job updated successfully.', 'success')
         return redirect(url_for('main.admin_panel'))
     return render_template('admin/job_form.html', form=form, title='Edit Job')
+
+@main.route('/post_job', methods=['GET', 'POST'])
+@login_required
+def post_job():
+    if not current_user.is_employer:
+        abort(403)  # Forbidden access
+    
+    form = JobForm()
+    if form.validate_on_submit():
+        new_job = Job(
+            title=form.title.data,
+            description=form.description.data,
+            requirements=form.requirements.data,
+            company_id=current_user.id
+        )
+        db.session.add(new_job)
+        db.session.commit()
+        logging.info(f"New job posted: {new_job.title} by employer {current_user.username}")
+        flash('Job posted successfully.', 'success')
+        return redirect(url_for('main.profile'))
+    
+    return render_template('post_job.html', form=form)

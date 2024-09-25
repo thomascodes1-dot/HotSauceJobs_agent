@@ -8,13 +8,22 @@
         {% for application in applications %}
             <li class="bg-gray-100 p-6 rounded">
                 <h3 class="text-xl font-semibold mb-2">Application from {{ application.applicant.username }}</h3>
-                <p class="text-gray-600 mb-2">Applied on: {{ application.created_at.strftime('%Y-%m-%d') }}</p>
-                <p class="text-gray-600 mb-2">Status: {{ application.status }}</p>
+                <p class="text-gray-600 mb-2">Applied on: {{ application.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p class="text-gray-600 mb-2">Status: 
+                    <span class="font-semibold 
+                        {% if application.status == 'pending' %}text-yellow-600
+                        {% elif application.status == 'reviewed' %}text-blue-600
+                        {% elif application.status == 'accepted' %}text-green-600
+                        {% elif application.status == 'rejected' %}text-red-600
+                        {% endif %}">
+                        {{ application.status.capitalize() }}
+                    </span>
+                </p>
                 <div class="mb-4">
                     <h4 class="font-semibold mb-2">Cover Letter:</h4>
-                    <p class="text-gray-700">{{ application.cover_letter }}</p>
+                    <p class="text-gray-700 bg-white p-3 rounded">{{ application.cover_letter }}</p>
                 </div>
-                <div>
+                <div class="mb-4">
                     <h4 class="font-semibold mb-2">Resume:</h4>
                     <a href="{{ url_for('static', filename='uploads/' + application.resume_filename) }}" target="_blank" class="text-blue-500 hover:underline">View Resume</a>
                 </div>
@@ -33,7 +42,7 @@
         {% endfor %}
         </ul>
     {% else %}
-        <p>No applications received for this job listing yet.</p>
+        <p class="text-gray-600">No applications received for this job listing yet.</p>
     {% endif %}
     <div class="mt-8">
         <a href="{{ url_for('main.profile') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Back to Profile</a>

@@ -12,6 +12,7 @@
     {% if current_user.is_employer %}
     <div class="mt-8">
         <h3 class="text-xl font-bold mb-4">Your Job Listings</h3>
+        <a href="{{ url_for('main.post_job') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4 inline-block">Post a Job</a>
         {% if jobs %}
             <ul class="space-y-4">
             {% for job in jobs %}

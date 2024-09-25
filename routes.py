@@ -100,10 +100,6 @@ def apply_for_job(job_id):
     job = Job.query.get_or_404(job_id)
     form = JobApplicationForm()
 
-    if current_user.is_employer:
-        flash('Employers cannot apply for jobs.', 'error')
-        return redirect(url_for('main.company', company_id=job.company_id))
-
     if form.validate_on_submit():
         existing_application = JobApplication.query.filter_by(job_id=job_id, user_id=current_user.id).first()
         if existing_application:

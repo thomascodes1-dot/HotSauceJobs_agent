@@ -22,7 +22,7 @@
                 <p class="text-gray-600 mb-4">{{ job.description }}</p>
                 <div class="flex justify-between items-center">
                     <a href="{{ url_for('main.company', company_id=job.company.id) }}" class="text-blue-500 hover:underline">View Company</a>
-                    {% if current_user.is_authenticated and not current_user.is_employer %}
+                    {% if current_user.is_authenticated %}
                     <a href="{{ url_for('main.apply_for_job', job_id=job.id) }}" class="inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-200">Apply Now</a>
                     {% endif %}
                 </div>

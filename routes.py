@@ -100,41 +100,32 @@ def apply_for_job(job_id):
     job = Job.query.get_or_404(job_id)
     form = JobApplicationForm()
 
-    logging.info(f"User {current_user.id} attempting to apply for job {job_id}")
-
     if current_user.is_employer:
         flash('Employers cannot apply for jobs.', 'error')
-        logging.warning(f"Employer (user_id: {current_user.id}) attempted to apply for job {job_id}")
         return redirect(url_for('main.company', company_id=job.company_id))
 
     if form.validate_on_submit():
-        try:
-            existing_application = JobApplication.query.filter_by(job_id=job_id, user_id=current_user.id).first()
-            if existing_application:
-                flash('You have already applied for this job.', 'warning')
-                logging.info(f"User {current_user.id} attempted to reapply for job {job_id}")
-            else:
-                cover_letter = form.cover_letter.data
-                resume = form.resume.data
-                filename = secure_filename(resume.filename)
-                resume_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-                resume.save(resume_path)
+        existing_application = JobApplication.query.filter_by(job_id=job_id, user_id=current_user.id).first()
+        if existing_application:
+            flash('You have already applied for this job.', 'warning')
+        else:
+            cover_letter = form.cover_letter.data
+            resume = form.resume.data
+            filename = secure_filename(resume.filename)
+            resume_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            resume.save(resume_path)
 
-                application = JobApplication(
-                    job_id=job_id,
-                    user_id=current_user.id,
-                    cover_letter=cover_letter,
-                    resume_filename=filename
-                )
-                db.session.add(application)
-                db.session.commit()
-                logging.info(f"New job application submitted: Job ID {job_id}, User ID {current_user.id}")
-                flash('Your application has been submitted successfully.', 'success')
-            return redirect(url_for('main.profile'))
-        except Exception as e:
-            db.session.rollback()
-            logging.error(f"Error submitting job application: {str(e)}")
-            flash('An error occurred while submitting your application. Please try again.', 'error')
+            application = JobApplication(
+                job_id=job_id,
+                user_id=current_user.id,
+                cover_letter=cover_letter,
+                resume_filename=filename
+            )
+            db.session.add(application)
+            db.session.commit()
+            logging.info(f"New job application submitted: Job ID {job_id}, User ID {current_user.id}")
+            flash('Your application has been submitted successfully.', 'success')
+        return redirect(url_for('main.profile'))
 
     return render_template('apply.html', job=job, form=form)
 

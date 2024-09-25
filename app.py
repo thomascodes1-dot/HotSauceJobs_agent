@@ -34,14 +34,17 @@ def create_app():
     app.register_blueprint(main)
 
     with app.app_context():
-        db.create_all()
-        
-        logging.info("Checking if sample data needs to be added")
-        if not User.query.first():
-            success = add_sample_data()
-            logging.info(f"Sample data addition {'succeeded' if success else 'failed'}")
-        else:
-            logging.info("Sample data already exists, skipping addition")
+        try:
+            db.create_all()
+            logging.info("Database tables created successfully")
+            
+            if not User.query.first():
+                success = add_sample_data()
+                logging.info(f"Sample data addition {'succeeded' if success else 'failed'}")
+            else:
+                logging.info("Sample data already exists, skipping addition")
+        except SQLAlchemyError as e:
+            logging.error(f"Error creating database tables: {str(e)}")
 
     return app
 

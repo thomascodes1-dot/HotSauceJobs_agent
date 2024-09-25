@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app, abort
 from flask_login import login_user, login_required, logout_user, current_user
 from models import Company, Job, User, JobApplication
@@ -7,7 +8,6 @@ from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, FileField, StringField
 from wtforms.validators import DataRequired
-import os
 import logging
 
 main = Blueprint('main', __name__)
@@ -19,6 +19,7 @@ class JobApplicationForm(FlaskForm):
 class CompanyForm(FlaskForm):
     name = StringField('Company Name', validators=[DataRequired()])
     description = TextAreaField('Company Description', validators=[DataRequired()])
+    image = FileField('Company Image')
 
 class JobForm(FlaskForm):
     title = StringField('Job Title', validators=[DataRequired()])
@@ -150,7 +151,6 @@ def view_application(application_id):
         abort(403)  # Forbidden access
     return render_template('view_application.html', application=application)
 
-# Admin panel routes
 @main.route('/admin')
 @login_required
 def admin_panel():
@@ -170,6 +170,12 @@ def admin_add_company():
     form = CompanyForm()
     if form.validate_on_submit():
         new_company = Company(name=form.name.data, description=form.description.data)
+        if form.image.data:
+            image = form.image.data
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(current_app.root_path, 'static/uploads', filename)
+            image.save(image_path)
+            new_company.image = filename
         db.session.add(new_company)
         db.session.commit()
         logging.info(f"New company added: {new_company.name}")
@@ -187,6 +193,17 @@ def admin_edit_company(company_id):
     if form.validate_on_submit():
         company.name = form.name.data
         company.description = form.description.data
+        if form.image.data:
+            image = form.image.data
+            filename = secure_filename(image.filename)
+            image_path = os.path.join(current_app.root_path, 'static/uploads', filename)
+            image.save(image_path)
+            # Remove old image if it exists
+            if company.image:
+                old_image_path = os.path.join(current_app.root_path, 'static/uploads', company.image)
+                if os.path.exists(old_image_path):
+                    os.remove(old_image_path)
+            company.image = filename
         db.session.commit()
         logging.info(f"Company updated: {company.name}")
         flash('Company updated successfully.', 'success')

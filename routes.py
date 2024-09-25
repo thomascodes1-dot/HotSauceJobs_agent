@@ -28,23 +28,27 @@ class JobForm(FlaskForm):
 @main.route('/')
 def index():
     companies = Company.query.all()
+    logging.info(f"Retrieved {len(companies)} companies for index page")
     return render_template('index.html', companies=companies)
 
 @main.route('/company/<int:company_id>')
 def company(company_id):
     company = Company.query.get_or_404(company_id)
+    logging.info(f"Retrieved company {company.name} (ID: {company.id}) with {len(company.jobs)} job listings")
     return render_template('company.html', company=company)
 
 @main.route('/search')
 def search():
     query = request.args.get('q', '')
     jobs = Job.query.filter(Job.title.ilike(f'%{query}%')).all()
+    logging.info(f"Search query: '{query}' returned {len(jobs)} job listings")
     return render_template('search.html', jobs=jobs, query=query)
 
 @main.route('/api/search')
 def api_search():
     query = request.args.get('q', '')
     jobs = Job.query.filter(Job.title.ilike(f'%{query}%')).all()
+    logging.info(f"API search query: '{query}' returned {len(jobs)} job listings")
     return jsonify([{
         'id': job.id,
         'title': job.title,
@@ -97,6 +101,7 @@ def register():
             new_user.set_password(password)
             db.session.add(new_user)
             db.session.commit()
+            logging.info(f"New user registered: {username}, is_employer: {is_employer}")
             flash('Registered successfully. Please log in.', 'success')
             return redirect(url_for('main.login'))
 
@@ -131,6 +136,7 @@ def apply_for_job(job_id):
             )
             db.session.add(application)
             db.session.commit()
+            logging.info(f"New job application submitted: Job ID {job_id}, User ID {current_user.id}")
             flash('Your application has been submitted successfully.', 'success')
         return redirect(url_for('main.profile'))
 
@@ -152,7 +158,9 @@ def admin_panel():
         abort(403)  # Forbidden access
     companies = Company.query.all()
     jobs = Job.query.all()
-    return render_template('admin/panel.html', companies=companies, jobs=jobs)
+    job_count = len(jobs)
+    logging.info(f"Admin panel accessed. Current job count: {job_count}")
+    return render_template('admin/panel.html', companies=companies, jobs=jobs, job_count=job_count)
 
 @main.route('/admin/company/add', methods=['GET', 'POST'])
 @login_required
@@ -164,6 +172,7 @@ def admin_add_company():
         new_company = Company(name=form.name.data, description=form.description.data)
         db.session.add(new_company)
         db.session.commit()
+        logging.info(f"New company added: {new_company.name}")
         flash('Company added successfully.', 'success')
         return redirect(url_for('main.admin_panel'))
     return render_template('admin/company_form.html', form=form, title='Add Company')
@@ -179,6 +188,7 @@ def admin_edit_company(company_id):
         company.name = form.name.data
         company.description = form.description.data
         db.session.commit()
+        logging.info(f"Company updated: {company.name}")
         flash('Company updated successfully.', 'success')
         return redirect(url_for('main.admin_panel'))
     return render_template('admin/company_form.html', form=form, title='Edit Company')
@@ -199,6 +209,7 @@ def admin_add_job():
         )
         db.session.add(new_job)
         db.session.commit()
+        logging.info(f"New job added: {new_job.title} for company ID {new_job.company_id}")
         flash('Job added successfully.', 'success')
         return redirect(url_for('main.admin_panel'))
     return render_template('admin/job_form.html', form=form, title='Add Job')
@@ -215,6 +226,7 @@ def admin_edit_job(job_id):
         job.description = form.description.data
         job.requirements = form.requirements.data
         db.session.commit()
+        logging.info(f"Job updated: {job.title} (ID: {job.id})")
         flash('Job updated successfully.', 'success')
         return redirect(url_for('main.admin_panel'))
     return render_template('admin/job_form.html', form=form, title='Edit Job')

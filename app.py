@@ -36,11 +36,16 @@ def create_app():
         app.register_blueprint(main)
         
         import models
-        db.drop_all()  # Drop all existing tables
-        db.create_all()  # Recreate all tables
+        # Remove the db.drop_all() line
+        # db.drop_all()  # This line was causing the issue
+        db.create_all()  # This will only create tables if they don't exist
         
-        success = add_sample_data()
-        logging.info(f"Sample data addition {'succeeded' if success else 'failed'}")
+        logging.info("Checking if sample data needs to be added")
+        if not models.User.query.first():
+            success = add_sample_data()
+            logging.info(f"Sample data addition {'succeeded' if success else 'failed'}")
+        else:
+            logging.info("Sample data already exists, skipping addition")
 
     return app
 

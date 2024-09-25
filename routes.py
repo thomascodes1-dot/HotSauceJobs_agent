@@ -69,7 +69,11 @@ def logout():
 @main.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+    if current_user.is_employer:
+        jobs = Job.query.filter_by(company_id=current_user.id).all()
+        return render_template('profile.html', jobs=jobs)
+    else:
+        return render_template('profile.html')
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
@@ -132,6 +136,42 @@ def view_application(application_id):
     if application.user_id != current_user.id:
         abort(403)  # Forbidden access
     return render_template('view_application.html', application=application)
+
+@main.route('/employer/applications/<int:job_id>')
+@login_required
+def employer_view_applications(job_id):
+    if not current_user.is_employer:
+        abort(403)  # Forbidden access
+    
+    job = Job.query.get_or_404(job_id)
+    
+    if job.company_id != current_user.id:
+        abort(403)  # Forbidden access
+    
+    applications = JobApplication.query.filter_by(job_id=job_id).all()
+    return render_template('employer_applications.html', job=job, applications=applications)
+
+@main.route('/employer/update_application/<int:application_id>', methods=['POST'])
+@login_required
+def update_application_status(application_id):
+    if not current_user.is_employer:
+        abort(403)  # Forbidden access
+    
+    application = JobApplication.query.get_or_404(application_id)
+    
+    # Check if the application's job belongs to the current employer
+    if application.job.company_id != current_user.id:
+        abort(403)  # Forbidden access
+    
+    new_status = request.form.get('status')
+    if new_status in ['pending', 'reviewed', 'accepted', 'rejected']:
+        application.status = new_status
+        db.session.commit()
+        flash('Application status updated successfully.', 'success')
+    else:
+        flash('Invalid status.', 'error')
+    
+    return redirect(url_for('main.employer_view_applications', job_id=application.job_id))
 
 @main.route('/admin')
 @login_required

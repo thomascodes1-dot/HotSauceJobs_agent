@@ -91,13 +91,6 @@ def register():
                 company_description=form.company_description.data if form.is_employer.data else None
             )
             new_user.set_password(form.password.data)
-            
-            if form.profile_picture.data:
-                filename = secure_filename(form.profile_picture.data.filename)
-                profile_pic_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-                form.profile_picture.data.save(profile_pic_path)
-                new_user.profile_picture = filename
-            
             db.session.add(new_user)
             
             if new_user.is_employer:

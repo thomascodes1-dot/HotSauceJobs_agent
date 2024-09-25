@@ -6,39 +6,50 @@
     <title>Job Board</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 flex flex-col min-h-screen">
-    <header class="bg-blue-600 text-white shadow-md">
+<body class="bg-gray-50 flex flex-col min-h-screen text-gray-800">
+    <header class="bg-white shadow-sm sticky top-0 z-10">
         <nav class="container mx-auto p-4">
             <div class="flex justify-between items-center">
-                <a href="/" class="text-2xl font-bold flex items-center">
+                <a href="/" class="text-2xl font-bold flex items-center text-blue-600 hover:text-blue-700 transition-all">
                     <i class="fas fa-briefcase mr-2"></i>
                     Job Board
                 </a>
                 <div class="flex items-center space-x-4">
                     <form action="{{ url_for('main.search') }}" method="GET" class="hidden md:flex">
-                        <input type="text" name="q" placeholder="Search jobs..." class="px-4 py-2 rounded-l-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                            <i class="fas fa-search"></i>
-                        </button>
+                        <div class="relative">
+                            <input type="text" name="q" placeholder="Search jobs..." class="pl-10 pr-4 py-2 rounded-lg text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all">
+                            <button type="submit" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-500 focus:outline-none transition-all">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
                     </form>
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('main.profile') }}" class="text-white hover:text-blue-200">
+                        <a href="{{ url_for('main.profile') }}" class="text-gray-600 hover:text-blue-600 transition-all">
                             <i class="fas fa-user-circle mr-1"></i> Profile
                         </a>
                         {% if current_user.is_admin %}
-                        <a href="{{ url_for('main.admin_panel') }}" class="text-white hover:text-blue-200">
+                        <a href="{{ url_for('main.admin_panel') }}" class="text-gray-600 hover:text-blue-600 transition-all">
                             <i class="fas fa-cog mr-1"></i> Admin
                         </a>
                         {% endif %}
-                        <a href="{{ url_for('main.logout') }}" class="text-white hover:text-blue-200">
+                        <a href="{{ url_for('main.logout') }}" class="text-gray-600 hover:text-blue-600 transition-all">
                             <i class="fas fa-sign-out-alt mr-1"></i> Logout
                         </a>
                     {% else %}
-                        <a href="{{ url_for('main.login') }}" class="text-white hover:text-blue-200">
+                        <a href="{{ url_for('main.login') }}" class="text-gray-600 hover:text-blue-600 transition-all">
                             <i class="fas fa-sign-in-alt mr-1"></i> Login
                         </a>
-                        <a href="{{ url_for('main.register') }}" class="text-white hover:text-blue-200">
+                        <a href="{{ url_for('main.register') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all">
                             <i class="fas fa-user-plus mr-1"></i> Register
                         </a>
                     {% endif %}
@@ -46,13 +57,14 @@
             </div>
         </nav>
     </header>
-    
+
     <main class="container mx-auto mt-8 px-4 flex-grow">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        <span class="block sm:inline">{{ message }}</span>
+                    <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border-l-4 border-{{ 'green' if category == 'success' else 'red' }}-500 text-{{ 'green' if category == 'success' else 'red' }}-700 p-4 rounded-r mb-4 shadow-sm" role="alert">
+                        <p class="font-bold">{{ 'Success' if category == 'success' else 'Error' }}</p>
+                        <p>{{ message }}</p>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -61,34 +73,34 @@
     </main>
 
     <footer class="bg-gray-800 text-white mt-8">
-        <div class="container mx-auto py-6 px-4">
-            <div class="flex flex-wrap justify-between items-center">
-                <div class="w-full md:w-1/3 mb-4 md:mb-0">
-                    <h3 class="text-lg font-semibold mb-2">Job Board</h3>
-                    <p class="text-sm">Find your dream job or the perfect candidate.</p>
+        <div class="container mx-auto py-8 px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Job Board</h3>
+                    <p class="text-sm text-gray-400">Find your dream job or the perfect candidate.</p>
                 </div>
-                <div class="w-full md:w-1/3 mb-4 md:mb-0">
-                    <h3 class="text-lg font-semibold mb-2">Quick Links</h3>
-                    <ul class="text-sm">
-                        <li><a href="{{ url_for('main.index') }}" class="hover:text-blue-300">Home</a></li>
-                        <li><a href="{{ url_for('main.search') }}" class="hover:text-blue-300">Search Jobs</a></li>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="text-sm space-y-2">
+                        <li><a href="{{ url_for('main.index') }}" class="text-gray-400 hover:text-white transition-all">Home</a></li>
+                        <li><a href="{{ url_for('main.search') }}" class="text-gray-400 hover:text-white transition-all">Search Jobs</a></li>
                         {% if current_user.is_authenticated %}
-                        <li><a href="{{ url_for('main.profile') }}" class="hover:text-blue-300">Profile</a></li>
+                        <li><a href="{{ url_for('main.profile') }}" class="text-gray-400 hover:text-white transition-all">Profile</a></li>
                         {% else %}
-                        <li><a href="{{ url_for('main.register') }}" class="hover:text-blue-300">Register</a></li>
+                        <li><a href="{{ url_for('main.register') }}" class="text-gray-400 hover:text-white transition-all">Register</a></li>
                         {% endif %}
                     </ul>
                 </div>
-                <div class="w-full md:w-1/3">
-                    <h3 class="text-lg font-semibold mb-2">Connect With Us</h3>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-white hover:text-blue-300"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white hover:text-blue-300"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white hover:text-blue-300"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
             </div>
-            <div class="mt-8 text-center text-sm">
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center text-sm text-gray-400">
                 &copy; 2024 Job Board. All rights reserved.
             </div>
         </div>

@@ -5,33 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Board</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen">
-    <header class="bg-blue-600 text-white">
+    <header class="bg-blue-600 text-white shadow-md">
         <nav class="container mx-auto p-4">
             <div class="flex justify-between items-center">
-                <a href="/" class="text-2xl font-bold">Job Board</a>
-                <div class="flex items-center">
-                    <form action="{{ url_for('main.search') }}" method="GET" class="flex mr-4">
-                        <input type="text" name="q" placeholder="Search jobs..." class="px-4 py-2 rounded-l-lg text-gray-800">
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-400">Search</button>
+                <a href="/" class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-briefcase mr-2"></i>
+                    Job Board
+                </a>
+                <div class="flex items-center space-x-4">
+                    <form action="{{ url_for('main.search') }}" method="GET" class="hidden md:flex">
+                        <input type="text" name="q" placeholder="Search jobs..." class="px-4 py-2 rounded-l-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </form>
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('main.profile') }}" class="text-white mr-4">Profile</a>
+                        <a href="{{ url_for('main.profile') }}" class="text-white hover:text-blue-200">
+                            <i class="fas fa-user-circle mr-1"></i> Profile
+                        </a>
                         {% if current_user.is_admin %}
-                        <a href="{{ url_for('main.admin_panel') }}" class="text-white mr-4">Admin Panel</a>
+                        <a href="{{ url_for('main.admin_panel') }}" class="text-white hover:text-blue-200">
+                            <i class="fas fa-cog mr-1"></i> Admin
+                        </a>
                         {% endif %}
-                        <a href="{{ url_for('main.logout') }}" class="text-white">Logout</a>
+                        <a href="{{ url_for('main.logout') }}" class="text-white hover:text-blue-200">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                        </a>
                     {% else %}
-                        <a href="{{ url_for('main.login') }}" class="text-white mr-4">Login</a>
-                        <a href="{{ url_for('main.register') }}" class="text-white">Register</a>
+                        <a href="{{ url_for('main.login') }}" class="text-white hover:text-blue-200">
+                            <i class="fas fa-sign-in-alt mr-1"></i> Login
+                        </a>
+                        <a href="{{ url_for('main.register') }}" class="text-white hover:text-blue-200">
+                            <i class="fas fa-user-plus mr-1"></i> Register
+                        </a>
                     {% endif %}
                 </div>
             </div>
         </nav>
     </header>
     
-    <main class="container mx-auto mt-8 flex-grow">
+    <main class="container mx-auto mt-8 px-4 flex-grow">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -44,9 +60,37 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-gray-200 mt-8">
-        <div class="container mx-auto p-4 text-center text-gray-600">
-            &copy; 2024 Job Board. All rights reserved.
+    <footer class="bg-gray-800 text-white mt-8">
+        <div class="container mx-auto py-6 px-4">
+            <div class="flex flex-wrap justify-between items-center">
+                <div class="w-full md:w-1/3 mb-4 md:mb-0">
+                    <h3 class="text-lg font-semibold mb-2">Job Board</h3>
+                    <p class="text-sm">Find your dream job or the perfect candidate.</p>
+                </div>
+                <div class="w-full md:w-1/3 mb-4 md:mb-0">
+                    <h3 class="text-lg font-semibold mb-2">Quick Links</h3>
+                    <ul class="text-sm">
+                        <li><a href="{{ url_for('main.index') }}" class="hover:text-blue-300">Home</a></li>
+                        <li><a href="{{ url_for('main.search') }}" class="hover:text-blue-300">Search Jobs</a></li>
+                        {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('main.profile') }}" class="hover:text-blue-300">Profile</a></li>
+                        {% else %}
+                        <li><a href="{{ url_for('main.register') }}" class="hover:text-blue-300">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <h3 class="text-lg font-semibold mb-2">Connect With Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-blue-300"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white hover:text-blue-300"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white hover:text-blue-300"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center text-sm">
+                &copy; 2024 Job Board. All rights reserved.
+            </div>
         </div>
     </footer>
 

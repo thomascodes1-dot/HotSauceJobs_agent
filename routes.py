@@ -7,6 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from forms import CompanyForm, JobForm, JobApplicationForm, RegistrationForm
 import logging
+from sqlalchemy import desc
 
 main = Blueprint('main', __name__)
 
@@ -91,6 +92,13 @@ def register():
             )
             new_user.set_password(form.password.data)
             db.session.add(new_user)
+            
+            if new_user.is_employer:
+                new_company = Company(name=form.company_name.data, description=form.company_description.data)
+                db.session.add(new_company)
+                db.session.flush()
+                new_user.id = new_company.id
+            
             db.session.commit()
             logging.info(f"New user registered: {new_user.username}, is_employer: {new_user.is_employer}")
             flash('Registered successfully. Please log in.', 'success')
@@ -134,33 +142,43 @@ def apply_for_job(job_id):
 def view_application(application_id):
     application = JobApplication.query.get_or_404(application_id)
     if application.user_id != current_user.id:
-        abort(403)  # Forbidden access
+        abort(403)
     return render_template('view_application.html', application=application)
 
 @main.route('/employer/applications/<int:job_id>')
 @login_required
 def employer_view_applications(job_id):
     if not current_user.is_employer:
-        abort(403)  # Forbidden access
+        abort(403)
     
     job = Job.query.get_or_404(job_id)
     
     if job.company_id != current_user.id:
-        abort(403)  # Forbidden access
+        abort(403)
     
-    applications = JobApplication.query.filter_by(job_id=job_id).order_by(JobApplication.created_at.desc()).all()
-    return render_template('employer_applications.html', job=job, applications=applications)
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status', 'all')
+    per_page = 10
+
+    query = JobApplication.query.filter_by(job_id=job_id)
+
+    if status_filter != 'all':
+        query = query.filter_by(status=status_filter)
+
+    applications = query.order_by(desc(JobApplication.created_at)).paginate(page=page, per_page=per_page, error_out=False)
+    
+    return render_template('employer_applications.html', job=job, applications=applications, status_filter=status_filter)
 
 @main.route('/employer/update_application/<int:application_id>', methods=['POST'])
 @login_required
 def update_application_status(application_id):
     if not current_user.is_employer:
-        abort(403)  # Forbidden access
+        abort(403)
     
     application = JobApplication.query.get_or_404(application_id)
     
     if application.job.company_id != current_user.id:
-        abort(403)  # Forbidden access
+        abort(403)
     
     new_status = request.form.get('status')
     if new_status in ['pending', 'reviewed', 'accepted', 'rejected']:
@@ -176,7 +194,7 @@ def update_application_status(application_id):
 @login_required
 def admin_panel():
     if not current_user.is_admin:
-        abort(403)  # Forbidden access
+        abort(403)
     companies = Company.query.all()
     jobs = Job.query.all()
     job_count = len(jobs)
@@ -187,7 +205,7 @@ def admin_panel():
 @login_required
 def admin_add_company():
     if not current_user.is_admin:
-        abort(403)  # Forbidden access
+        abort(403)
     form = CompanyForm()
     if form.validate_on_submit():
         new_company = Company(name=form.name.data, description=form.description.data)
@@ -208,7 +226,7 @@ def admin_add_company():
 @login_required
 def admin_edit_company(company_id):
     if not current_user.is_admin:
-        abort(403)  # Forbidden access
+        abort(403)
     company = Company.query.get_or_404(company_id)
     form = CompanyForm(obj=company)
     if form.validate_on_submit():
@@ -234,7 +252,7 @@ def admin_edit_company(company_id):
 @login_required
 def admin_add_job():
     if not current_user.is_admin:
-        abort(403)  # Forbidden access
+        abort(403)
     form = JobForm()
     form.company_id = request.args.get('company_id')
     if form.validate_on_submit():
@@ -255,7 +273,7 @@ def admin_add_job():
 @login_required
 def admin_edit_job(job_id):
     if not current_user.is_admin:
-        abort(403)  # Forbidden access
+        abort(403)
     job = Job.query.get_or_404(job_id)
     form = JobForm(obj=job)
     if form.validate_on_submit():
@@ -268,19 +286,28 @@ def admin_edit_job(job_id):
         return redirect(url_for('main.admin_panel'))
     return render_template('admin/job_form.html', form=form, title='Edit Job')
 
+def get_or_create_company(user):
+    company = Company.query.get(user.id)
+    if not company:
+        company = Company(id=user.id, name=user.company_name, description=user.company_description)
+        db.session.add(company)
+        db.session.commit()
+    return company
+
 @main.route('/post_job', methods=['GET', 'POST'])
 @login_required
 def post_job():
     if not current_user.is_employer:
-        abort(403)  # Forbidden access
+        abort(403)
     
     form = JobForm()
     if form.validate_on_submit():
+        company = get_or_create_company(current_user)
         new_job = Job(
             title=form.title.data,
             description=form.description.data,
             requirements=form.requirements.data,
-            company_id=current_user.id
+            company_id=company.id
         )
         db.session.add(new_job)
         db.session.commit()

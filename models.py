@@ -26,6 +26,7 @@ class User(UserMixin, db.Model):
     applications = db.relationship('JobApplication', backref='applicant', lazy=True)
     company_name = db.Column(db.String(100), nullable=True)
     company_description = db.Column(db.Text, nullable=True)
+    profile_picture = db.Column(db.String(255), nullable=True)  # New field for profile picture
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

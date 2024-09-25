@@ -5,26 +5,10 @@ from models import Company, Job, User, JobApplication
 from extensions import db
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from flask_wtf import FlaskForm
-from wtforms import TextAreaField, FileField, StringField
-from wtforms.validators import DataRequired
+from forms import CompanyForm, JobForm, JobApplicationForm, RegistrationForm
 import logging
 
 main = Blueprint('main', __name__)
-
-class JobApplicationForm(FlaskForm):
-    cover_letter = TextAreaField('Cover Letter', validators=[DataRequired()])
-    resume = FileField('Resume', validators=[DataRequired()])
-
-class CompanyForm(FlaskForm):
-    name = StringField('Company Name', validators=[DataRequired()])
-    description = TextAreaField('Company Description', validators=[DataRequired()])
-    image = FileField('Company Image')
-
-class JobForm(FlaskForm):
-    title = StringField('Job Title', validators=[DataRequired()])
-    description = TextAreaField('Job Description', validators=[DataRequired()])
-    requirements = TextAreaField('Job Requirements', validators=[DataRequired()])
 
 @main.route('/')
 def index():
@@ -89,24 +73,26 @@ def profile():
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        is_employer = request.form.get('is_employer') == 'on'
-
-        user = User.query.filter_by(username=username).first()
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
         if user:
             flash('Username already exists.', 'error')
         else:
-            new_user = User(username=username, is_employer=is_employer)
-            new_user.set_password(password)
+            new_user = User(
+                username=form.username.data,
+                is_employer=form.is_employer.data,
+                company_name=form.company_name.data if form.is_employer.data else None,
+                company_description=form.company_description.data if form.is_employer.data else None
+            )
+            new_user.set_password(form.password.data)
             db.session.add(new_user)
             db.session.commit()
-            logging.info(f"New user registered: {username}, is_employer: {is_employer}")
+            logging.info(f"New user registered: {new_user.username}, is_employer: {new_user.is_employer}")
             flash('Registered successfully. Please log in.', 'success')
             return redirect(url_for('main.login'))
 
-    return render_template('register.html')
+    return render_template('register.html', form=form)
 
 @main.route('/apply/<int:job_id>', methods=['GET', 'POST'])
 @login_required
@@ -198,7 +184,6 @@ def admin_edit_company(company_id):
             filename = secure_filename(image.filename)
             image_path = os.path.join(current_app.root_path, 'static/uploads', filename)
             image.save(image_path)
-            # Remove old image if it exists
             if company.image:
                 old_image_path = os.path.join(current_app.root_path, 'static/uploads', company.image)
                 if os.path.exists(old_image_path):

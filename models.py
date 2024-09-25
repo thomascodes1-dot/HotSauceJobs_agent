@@ -6,7 +6,7 @@ class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    image = db.Column(db.String(255), nullable=True)  # New field for storing image filename
+    image = db.Column(db.String(255), nullable=True)
     jobs = db.relationship('Job', backref='company', lazy=True)
 
 class Job(db.Model):
@@ -24,6 +24,8 @@ class User(UserMixin, db.Model):
     is_employer = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
     applications = db.relationship('JobApplication', backref='applicant', lazy=True)
+    company_name = db.Column(db.String(100), nullable=True)
+    company_description = db.Column(db.Text, nullable=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

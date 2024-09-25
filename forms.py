@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, FileField
-from wtforms.validators import DataRequired
+from wtforms import StringField, TextAreaField, SubmitField, FileField, BooleanField, PasswordField
+from wtforms.validators import DataRequired, Length, Optional
 from flask_wtf.file import FileAllowed
 
 class CompanyForm(FlaskForm):
@@ -19,3 +19,11 @@ class JobApplicationForm(FlaskForm):
     cover_letter = TextAreaField('Cover Letter', validators=[DataRequired()])
     resume = FileField('Resume', validators=[DataRequired(), FileAllowed(['pdf'], 'PDF files only!')])
     submit = SubmitField('Submit Application')
+
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+    password = PasswordField('Password', validators=[DataRequired()])
+    is_employer = BooleanField('Register as an employer')
+    company_name = StringField('Company Name', validators=[Optional(), Length(max=100)])
+    company_description = TextAreaField('Company Description', validators=[Optional()])
+    submit = SubmitField('Sign Up')

@@ -88,8 +88,7 @@ def register():
                 username=form.username.data,
                 is_employer=form.is_employer.data,
                 company_name=form.company_name.data if form.is_employer.data else None,
-                company_description=form.company_description.data if form.is_employer.data else None,
-                user_description=form.user_description.data
+                company_description=form.company_description.data if form.is_employer.data else None
             )
             new_user.set_password(form.password.data)
             

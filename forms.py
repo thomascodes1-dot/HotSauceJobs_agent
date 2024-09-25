@@ -27,5 +27,4 @@ class RegistrationForm(FlaskForm):
     company_name = StringField('Company Name', validators=[Optional(), Length(max=100)])
     company_description = TextAreaField('Company Description', validators=[Optional()])
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
-    user_description = TextAreaField('User Description', validators=[Optional()])
     submit = SubmitField('Sign Up')

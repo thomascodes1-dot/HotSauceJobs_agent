@@ -27,3 +27,10 @@ class RegistrationForm(FlaskForm):
     company_name = StringField('Company Name', validators=[Optional(), Length(max=100)])
     company_description = TextAreaField('Company Description', validators=[Optional()])
     submit = SubmitField('Sign Up')
+
+class ProfileEditForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=64)])
+    company_name = StringField('Company Name', validators=[Optional(), Length(max=100)])
+    company_description = TextAreaField('Company Description', validators=[Optional()])
+    profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    submit = SubmitField('Update Profile')

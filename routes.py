@@ -1,11 +1,13 @@
 import os
+import secrets
+from PIL import Image
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app, abort
 from flask_login import login_user, login_required, logout_user, current_user
 from models import Company, Job, User, JobApplication
 from extensions import db
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from forms import CompanyForm, JobForm, JobApplicationForm, RegistrationForm
+from forms import CompanyForm, JobForm, JobApplicationForm, RegistrationForm, ProfileEditForm
 import logging
 from sqlalchemy import desc
 
@@ -75,6 +77,39 @@ def profile():
         return render_template('profile.html', jobs=jobs)
     else:
         return render_template('profile.html')
+
+@main.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = ProfileEditForm(obj=current_user)
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        if current_user.is_employer:
+            current_user.company_name = form.company_name.data
+            current_user.company_description = form.company_description.data
+        
+        if form.profile_picture.data:
+            picture_file = save_picture(form.profile_picture.data)
+            current_user.profile_picture = picture_file
+        
+        db.session.commit()
+        flash('Your profile has been updated!', 'success')
+        return redirect(url_for('main.profile'))
+    
+    return render_template('edit_profile.html', form=form)
+
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(current_app.root_path, 'static/profile_pics', picture_fn)
+    
+    output_size = (150, 150)
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+    
+    return picture_fn
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():

@@ -16,6 +16,7 @@ flask-wtf = "^1.2.1"
 flask-migrate = "^4.0.7"
 sqlalchemy = "^2.0.35"
 wtforms = "^3.1.2"
+pillow = "^10.4.0"
 
 
 [build-system]

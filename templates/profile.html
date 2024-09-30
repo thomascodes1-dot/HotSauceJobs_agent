@@ -2,17 +2,25 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6">User Profile</h2>
-    <div class="mb-4">
-        <p><strong>Username:</strong> {{ current_user.username }}</p>
+    <div class="flex items-center mb-6">
+        {% if current_user.profile_picture %}
+            <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_picture) }}" alt="Profile Picture" class="w-24 h-24 rounded-full mr-4">
+        {% else %}
+            <div class="w-24 h-24 bg-gray-300 rounded-full mr-4 flex items-center justify-center">
+                <span class="text-gray-600 text-2xl">{{ current_user.username[0].upper() }}</span>
+            </div>
+        {% endif %}
+        <div>
+            <h2 class="text-2xl font-bold">{{ current_user.username }}</h2>
+            <p class="text-gray-600">{{ "Employer" if current_user.is_employer else "Job Seeker" }}</p>
+        </div>
     </div>
-    <div class="mb-4">
-        <p><strong>Account Type:</strong> {{ "Employer" if current_user.is_employer else "Job Seeker" }}</p>
-    </div>
+    <a href="{{ url_for('main.edit_profile') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-6 inline-block">Edit Profile</a>
+    
     {% if current_user.is_employer %}
     <div class="mt-8">
         <h3 class="text-xl font-bold mb-4">Your Job Listings</h3>
-        <a href="{{ url_for('main.post_job') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4 inline-block">Post a Job</a>
+        <a href="{{ url_for('main.post_job') }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-4 inline-block">Post a Job</a>
         {% if jobs %}
             <ul class="space-y-4">
             {% for job in jobs %}

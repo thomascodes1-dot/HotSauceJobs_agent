@@ -15,7 +15,7 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    companies = Company.query.all()
+    companies = db.session.query(Company, User.profile_picture).outerjoin(User, Company.id == User.id).all()
     logging.info(f"Retrieved {len(companies)} companies for index page")
     return render_template('index.html', companies=companies)
 
@@ -91,6 +91,7 @@ def edit_profile():
         if form.profile_picture.data:
             picture_file = save_picture(form.profile_picture.data)
             current_user.profile_picture = picture_file
+            logging.info(f"Updated profile picture for user {current_user.username}: {picture_file}")
         
         db.session.commit()
         flash('Your profile has been updated!', 'success')
@@ -113,6 +114,7 @@ def save_picture(form_picture):
     i.thumbnail(output_size)
     i.save(picture_path)
     
+    logging.info(f"Saved profile picture: {picture_fn}")
     return picture_fn
 
 @main.route('/register', methods=['GET', 'POST'])

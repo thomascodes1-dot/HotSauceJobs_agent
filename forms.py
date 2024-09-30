@@ -7,7 +7,6 @@ class CompanyForm(FlaskForm):
     name = StringField('Company Name', validators=[DataRequired()])
     description = TextAreaField('Company Description', validators=[DataRequired()])
     image = FileField('Company Image', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
-    cover_photo = FileField('Cover Photo', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
     submit = SubmitField('Submit')
 
 class JobForm(FlaskForm):
@@ -34,5 +33,4 @@ class ProfileEditForm(FlaskForm):
     company_name = StringField('Company Name', validators=[Optional(), Length(max=100)])
     company_description = TextAreaField('Company Description', validators=[Optional()])
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
-    cover_photo = FileField('Cover Photo', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
     submit = SubmitField('Update Profile')

@@ -2,11 +2,11 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
-    {% if company.cover_photo %}
-    <img src="{{ url_for('static', filename='cover_photos/' + company.cover_photo) }}" alt="{{ company.name }} Cover Photo" class="w-full h-64 object-cover mb-6 rounded-lg shadow-md">
+    {% if company.image %}
+    <img src="{{ url_for('static', filename='uploads/' + company.image) }}" alt="{{ company.name }}" class="w-full h-64 object-cover mb-6 rounded-lg shadow-md">
     {% else %}
     <div class="w-full h-64 bg-gray-200 flex items-center justify-center mb-6 rounded-lg shadow-md">
-        <span class="text-gray-500 text-2xl">No cover photo available</span>
+        <span class="text-gray-500 text-2xl">No image available</span>
     </div>
     {% endif %}
 

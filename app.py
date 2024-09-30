@@ -17,11 +17,8 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static/uploads')
 
-    # Ensure upload folder and its subdirectories exist
-    for folder in ['profile_pics', 'cover_photos']:
-        folder_path = os.path.join(app.config['UPLOAD_FOLDER'], folder)
-        os.makedirs(folder_path, exist_ok=True)
-        logging.info(f"Created upload folder: {folder_path}")
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
 
     db.init_app(app)
     migrate = Migrate(app, db)

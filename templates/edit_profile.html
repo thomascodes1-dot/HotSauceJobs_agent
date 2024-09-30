@@ -18,20 +18,10 @@
             <label for="company_description" class="block text-gray-700 font-bold mb-2">Company Description</label>
             {{ form.company_description(class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500", rows=5) }}
         </div>
-        <div class="mb-4">
-            <label for="cover_photo" class="block text-gray-700 font-bold mb-2">Company Cover Photo</label>
-            {{ form.cover_photo(class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500") }}
-            {% if current_user.company and current_user.company.cover_photo %}
-            <img src="{{ url_for('static', filename='cover_photos/' + current_user.company.cover_photo) }}" alt="Current Cover Photo" class="mt-2 w-full h-48 object-cover rounded-lg">
-            {% endif %}
-        </div>
         {% endif %}
         <div class="mb-4">
             <label for="profile_picture" class="block text-gray-700 font-bold mb-2">Profile Picture</label>
             {{ form.profile_picture(class="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500") }}
-            {% if current_user.profile_picture %}
-            <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_picture) }}" alt="Current Profile Picture" class="mt-2 w-32 h-32 object-cover rounded-full">
-            {% endif %}
         </div>
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Update Profile

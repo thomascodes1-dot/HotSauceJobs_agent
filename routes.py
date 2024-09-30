@@ -87,15 +87,9 @@ def edit_profile():
         if current_user.is_employer:
             current_user.company_name = form.company_name.data
             current_user.company_description = form.company_description.data
-            company = get_or_create_company(current_user)
-            
-            if form.cover_photo.data:
-                cover_photo_file = save_picture(form.cover_photo.data, 'cover_photos')
-                company.cover_photo = cover_photo_file
-                logging.info(f"Updated cover photo for company {company.name}: {cover_photo_file}")
         
         if form.profile_picture.data:
-            picture_file = save_picture(form.profile_picture.data, 'profile_pics')
+            picture_file = save_picture(form.profile_picture.data)
             current_user.profile_picture = picture_file
             logging.info(f"Updated profile picture for user {current_user.username}: {picture_file}")
         
@@ -105,22 +99,22 @@ def edit_profile():
     
     return render_template('edit_profile.html', form=form)
 
-def save_picture(form_picture, folder):
+def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(current_app.root_path, 'static', folder)
+    picture_path = os.path.join(current_app.root_path, 'static', 'profile_pics')
     
     os.makedirs(picture_path, exist_ok=True)
     
     picture_path = os.path.join(picture_path, picture_fn)
     
-    output_size = (800, 800)
+    output_size = (150, 150)
     i = Image.open(form_picture)
     i.thumbnail(output_size)
     i.save(picture_path)
     
-    logging.info(f"Saved picture in {folder}: {picture_fn}")
+    logging.info(f"Saved profile picture: {picture_fn}")
     return picture_fn
 
 @main.route('/register', methods=['GET', 'POST'])

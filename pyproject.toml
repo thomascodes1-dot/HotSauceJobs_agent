@@ -17,6 +17,7 @@ flask-migrate = "^4.0.7"
 sqlalchemy = "^2.0.35"
 wtforms = "^3.1.2"
 pillow = "^10.4.0"
+gunicorn = "^23.0.0"
 
 
 [build-system]

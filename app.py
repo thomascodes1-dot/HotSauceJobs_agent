@@ -95,4 +95,7 @@ def add_sample_data():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    if os.environ.get('FLASK_ENV') == 'production':
+        app.run(host="0.0.0.0", port=5000)
+    else:
+        app.run(host="0.0.0.0", port=5000, debug=True)

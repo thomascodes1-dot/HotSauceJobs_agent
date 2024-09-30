@@ -22,8 +22,10 @@ def index():
 @main.route('/company/<int:company_id>')
 def company(company_id):
     company = Company.query.get_or_404(company_id)
+    owner = User.query.get(company_id)
+    profile_picture = owner.profile_picture if owner else None
     logging.info(f"Retrieved company {company.name} (ID: {company.id}) with {len(company.jobs)} job listings")
-    return render_template('company.html', company=company)
+    return render_template('company.html', company=company, profile_picture=profile_picture)
 
 @main.route('/search')
 def search():

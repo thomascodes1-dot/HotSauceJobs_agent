@@ -7,6 +7,7 @@ class Company(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(255), nullable=True)
+    cover_photo = db.Column(db.String(255), nullable=True)
     jobs = db.relationship('Job', backref='company', lazy=True)
 
 class Job(db.Model):

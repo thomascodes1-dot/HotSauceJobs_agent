@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 from forms import CompanyForm, JobForm, JobApplicationForm, RegistrationForm, ProfileEditForm
 import logging
 from sqlalchemy import desc
+from sqlalchemy.exc import SQLAlchemyError
 
 main = Blueprint('main', __name__)
 
@@ -334,11 +335,23 @@ def admin_edit_job(job_id):
 def admin_delete_job(job_id):
     if not current_user.is_admin:
         abort(403)
-    job = Job.query.get_or_404(job_id)
-    db.session.delete(job)
-    db.session.commit()
-    logging.info(f"Job deleted: {job.title} (ID: {job.id})")
-    flash('Job deleted successfully.', 'success')
+    try:
+        job = Job.query.get_or_404(job_id)
+        
+        # Delete associated job applications
+        JobApplication.query.filter_by(job_id=job_id).delete()
+        
+        # Delete the job
+        db.session.delete(job)
+        db.session.commit()
+        
+        logging.info(f"Job deleted successfully: {job.title} (ID: {job.id})")
+        flash('Job deleted successfully.', 'success')
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Error deleting job (ID: {job_id}): {str(e)}")
+        flash('An error occurred while deleting the job. Please try again.', 'error')
+    
     return redirect(url_for('main.admin_panel'))
 
 def get_or_create_company(user):

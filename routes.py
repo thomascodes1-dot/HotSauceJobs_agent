@@ -329,6 +329,18 @@ def admin_edit_job(job_id):
         return redirect(url_for('main.admin_panel'))
     return render_template('admin/job_form.html', form=form, title='Edit Job')
 
+@main.route('/admin/job/delete/<int:job_id>', methods=['POST'])
+@login_required
+def admin_delete_job(job_id):
+    if not current_user.is_admin:
+        abort(403)
+    job = Job.query.get_or_404(job_id)
+    db.session.delete(job)
+    db.session.commit()
+    logging.info(f"Job deleted: {job.title} (ID: {job.id})")
+    flash('Job deleted successfully.', 'success')
+    return redirect(url_for('main.admin_panel'))
+
 def get_or_create_company(user):
     company = Company.query.get(user.id)
     if not company:

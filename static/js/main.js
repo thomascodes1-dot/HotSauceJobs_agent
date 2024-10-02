@@ -10,10 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (query) {
                 try {
                     const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
                     const jobs = await response.json();
                     updateSearchResults(jobs);
                 } catch (error) {
                     console.error('Error fetching search results:', error);
+                    showErrorMessage('An error occurred while searching. Please try again.');
                 }
             }
         });
@@ -36,6 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             searchResults.appendChild(jobElement);
         });
+    }
+
+    function showErrorMessage(message) {
+        const errorElement = document.createElement('div');
+        errorElement.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r mb-4 shadow-sm';
+        errorElement.innerHTML = `
+            <p class="font-bold">Error</p>
+            <p>${message}</p>
+        `;
+        searchResults.innerHTML = '';
+        searchResults.appendChild(errorElement);
     }
 
     // Add smooth scrolling for anchor links

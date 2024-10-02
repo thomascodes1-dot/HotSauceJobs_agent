@@ -17,6 +17,11 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static/uploads')
 
+    # Configure logging
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]',
+                        handlers=[logging.StreamHandler()])
+
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
 
@@ -33,24 +38,34 @@ def create_app():
 
     app.register_blueprint(main)
 
+    # Register error handlers
+    app.register_error_handler(404, page_not_found)
+    app.register_error_handler(500, internal_server_error)
+
     with app.app_context():
         try:
             db.create_all()
-            logging.info("Database tables created successfully")
+            app.logger.info("Database tables created successfully")
             
             if not User.query.first():
                 success = add_sample_data()
-                logging.info(f"Sample data addition {'succeeded' if success else 'failed'}")
+                app.logger.info(f"Sample data addition {'succeeded' if success else 'failed'}")
             else:
-                logging.info("Sample data already exists, skipping addition")
+                app.logger.info("Sample data already exists, skipping addition")
         except SQLAlchemyError as e:
-            logging.error(f"Error creating database tables: {str(e)}")
+            app.logger.error(f"Error creating database tables: {str(e)}")
 
     return app
 
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
+
+def internal_server_error(e):
+    return render_template('errors/500.html'), 500
+
 def add_sample_data():
     try:
-        logging.info("Adding sample companies and jobs")
+        app.logger.info("Adding sample companies and jobs")
         company1 = Company(name="Tech Innovators", description="Leading tech company")
         company2 = Company(name="Green Energy Solutions", description="Sustainable energy provider")
         db.session.add_all([company1, company2])
@@ -62,7 +77,7 @@ def add_sample_data():
         db.session.add_all([job1, job2, job3])
         db.session.commit()
 
-        logging.info("Adding sample users")
+        app.logger.info("Adding sample users")
         user1 = User(username="jobseeker1", is_employer=False)
         user1.set_password("password1")
         user2 = User(username="employer1", is_employer=True)
@@ -74,7 +89,7 @@ def add_sample_data():
         db.session.add_all([user1, user2, user3, admin_user])
         db.session.commit()
 
-        logging.info("Adding sample job applications")
+        app.logger.info("Adding sample job applications")
         application1 = JobApplication(job_id=job1.id, user_id=user1.id, status="pending", created_at=datetime.utcnow(), cover_letter="Sample cover letter", resume_filename="sample_resume.pdf")
         application2 = JobApplication(job_id=job2.id, user_id=user3.id, status="accepted", created_at=datetime.utcnow(), cover_letter="Another sample cover letter", resume_filename="another_sample_resume.pdf")
         db.session.add_all([application1, application2])
@@ -84,12 +99,12 @@ def add_sample_data():
         jobs = Job.query.all()
         users = User.query.all()
         applications = JobApplication.query.all()
-        logging.info(f"Verification: {len(companies)} companies, {len(jobs)} jobs, {len(users)} users, {len(applications)} applications")
+        app.logger.info(f"Verification: {len(companies)} companies, {len(jobs)} jobs, {len(users)} users, {len(applications)} applications")
 
         print("Sample data added successfully")
         return True
     except SQLAlchemyError as e:
-        logging.error(f"Error adding sample data: {str(e)}")
+        app.logger.error(f"Error adding sample data: {str(e)}")
         db.session.rollback()
         return False
 

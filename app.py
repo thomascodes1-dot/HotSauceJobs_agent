@@ -1,12 +1,12 @@
 import os
-from flask import Flask
+from flask import Flask, session
 from flask_migrate import Migrate
 from extensions import db
 from models import Company, Job, User, JobApplication
 from routes import main
 import logging
 from werkzeug.security import generate_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 from flask_login import LoginManager
 
@@ -16,11 +16,12 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static/uploads')
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)  # Set session timeout to 30 minutes
 
     # Configure logging
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]',
-                        handlers=[logging.StreamHandler()])
+                        handlers=[logging.StreamHandler(), logging.FileHandler('app.log')])
 
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -41,6 +42,19 @@ def create_app():
     # Register error handlers
     app.register_error_handler(404, page_not_found)
     app.register_error_handler(500, internal_server_error)
+
+    # Implement session management
+    @app.before_request
+    def before_request():
+        session.permanent = True
+        app.permanent_session_lifetime = timedelta(minutes=30)
+        session.modified = True
+
+    # Implement error handling middleware
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        app.logger.error(f"Unhandled exception: {str(e)}")
+        return "An unexpected error occurred", 500
 
     with app.app_context():
         try:

@@ -1,0 +1,20 @@
+2024-10-14 19:26:53,057 INFO: Database tables created successfully [in /home/runner/HotSauceJobs/app.py:62]
+2024-10-14 19:26:53,117 INFO: Sample data already exists, skipping addition [in /home/runner/HotSauceJobs/app.py:68]
+2024-10-14 19:26:53,231 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.196.73:5000 [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:26:53,231 INFO: [33mPress CTRL+C to quit[0m [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:26:53,235 INFO:  * Restarting with stat [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:26:54,503 INFO: Database tables created successfully [in /home/runner/HotSauceJobs/app.py:62]
+2024-10-14 19:26:54,580 INFO: Sample data already exists, skipping addition [in /home/runner/HotSauceJobs/app.py:68]
+2024-10-14 19:26:54,625 WARNING:  * Debugger is active! [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:26:54,641 INFO:  * Debugger PIN: 365-789-370 [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:26:54,888 INFO: Retrieved 4 companies for index page [in /home/runner/HotSauceJobs/routes.py:48]
+2024-10-14 19:26:55,132 INFO: 172.31.196.73 - - [14/Oct/2024 19:26:55] "GET / HTTP/1.1" 200 - [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:26:56,335 INFO: 172.31.196.73 - - [14/Oct/2024 19:26:56] "GET /static/js/main.js HTTP/1.1" 200 - [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:26:56,453 INFO: 172.31.196.73 - - [14/Oct/2024 19:26:56] "GET /static/profile_pics/ac50e54f94f92560.jpg HTTP/1.1" 200 - [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:27:03,893 INFO: Retrieved 4 companies for index page [in /home/runner/HotSauceJobs/routes.py:48]
+2024-10-14 19:27:03,916 INFO: 172.31.196.73 - - [14/Oct/2024 19:27:03] "GET / HTTP/1.1" 200 - [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:27:03,969 INFO: 172.31.196.73 - - [14/Oct/2024 19:27:03] "GET /static/profile_pics/ac50e54f94f92560.jpg HTTP/1.1" 200 - [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]
+2024-10-14 19:27:03,988 INFO: 172.31.196.73 - - [14/Oct/2024 19:27:03] "GET /static/js/main.js HTTP/1.1" 200 - [in /home/runner/HotSauceJobs/.pythonlibs/lib/python3.11/site-packages/werkzeug/_internal.py:97]

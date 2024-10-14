@@ -72,4 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileMenu.classList.toggle('hidden');
         });
     }
+
+    // Global error handler
+    window.addEventListener('error', function(event) {
+        console.error('Uncaught error:', event.error);
+        showErrorMessage('An unexpected error occurred. Please try refreshing the page.');
+    });
+
+    // Unhandled promise rejection handler
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error('Unhandled promise rejection:', event.reason);
+        showErrorMessage('An unexpected error occurred. Please try refreshing the page.');
+    });
 });

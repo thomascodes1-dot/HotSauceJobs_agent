@@ -115,5 +115,14 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Keep-alive mechanism
+        setInterval(function() {
+            fetch('/keep-alive')
+                .then(response => response.json())
+                .then(data => console.log('Keep-alive ping successful'))
+                .catch(error => console.error('Keep-alive ping failed:', error));
+        }, 600000); // Ping every 10 minutes (600000 ms)
+    </script>
 </body>
 </html>
